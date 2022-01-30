@@ -1,0 +1,147 @@
+[gd_scene load_steps=19 format=2]
+
+[ext_resource path="res://scripts/game/Walls/WallSpawner.gd" type="Script" id=1]
+[ext_resource path="res://scripts/game/Walls/WallDestroyer.gd" type="Script" id=2]
+[ext_resource path="res://scripts/game/ScoreLabel.gd" type="Script" id=3]
+[ext_resource path="res://scripts/game/Player/Lose.gd" type="Script" id=4]
+[ext_resource path="res://scripts/global/exitgame.gd" type="Script" id=5]
+[ext_resource path="res://scripts/game/Player/player.gd" type="Script" id=6]
+[ext_resource path="res://sfx/dive.wav" type="AudioStream" id=7]
+[ext_resource path="res://sprites/Sprite-0001.png" type="Texture" id=8]
+[ext_resource path="res://sfx/flap.wav" type="AudioStream" id=9]
+[ext_resource path="res://sfx/score.wav" type="AudioStream" id=10]
+[ext_resource path="res://sprites/bg.png" type="Texture" id=11]
+[ext_resource path="res://scripts/global/city-scroll.gd" type="Script" id=12]
+[ext_resource path="res://sprites/tb.png" type="Texture" id=13]
+
+[sub_resource type="Shader" id=6]
+code = "shader_type canvas_item;
+uniform float scroll_speed;
+
+void fragment(){
+    vec2 shifteduv = UV;
+    shifteduv .x += TIME * scroll_speed;
+    vec4 color = texture(TEXTURE, shifteduv);
+    COLOR = color;
+}
+"
+
+[sub_resource type="ShaderMaterial" id=5]
+shader = SubResource( 6 )
+shader_param/scroll_speed = null
+
+[sub_resource type="RectangleShape2D" id=1]
+extents = Vector2( 5.95679, 5.08507 )
+
+[sub_resource type="RectangleShape2D" id=2]
+extents = Vector2( 10, 316 )
+
+[sub_resource type="RectangleShape2D" id=3]
+extents = Vector2( 518.5, 12.5 )
+
+[node name="Game" type="Node2D"]
+script = ExtResource( 5 )
+
+[node name="TextureRect" type="TextureRect" parent="."]
+material = SubResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = -1.0
+margin_right = 1280.0
+margin_bottom = 719.0
+texture = ExtResource( 11 )
+stretch_mode = 2
+script = ExtResource( 12 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="RigidBody2D" type="RigidBody2D" parent="." groups=["player"]]
+position = Vector2( 640, 360 )
+script = ExtResource( 6 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D"]
+scale = Vector2( 6.67203, 6.67203 )
+shape = SubResource( 1 )
+
+[node name="Sprite" type="Sprite" parent="RigidBody2D/CollisionShape2D"]
+position = Vector2( -0.299759, 0.0922966 )
+scale = Vector2( 0.0920384, 0.0920384 )
+texture = ExtResource( 8 )
+
+[node name="flap" type="AudioStreamPlayer2D" parent="RigidBody2D"]
+stream = ExtResource( 9 )
+
+[node name="dive" type="AudioStreamPlayer2D" parent="RigidBody2D"]
+stream = ExtResource( 7 )
+
+[node name="ScoreLabel" type="Label" parent="."]
+margin_left = 8.0
+margin_top = 17.0
+margin_right = 47.0
+margin_bottom = 33.0
+script = ExtResource( 3 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="WallSpawner" type="Node2D" parent="."]
+position = Vector2( 1280, 178 )
+script = ExtResource( 1 )
+
+[node name="WallDestroyer" type="Area2D" parent="."]
+position = Vector2( -91, 378 )
+scale = Vector2( 1, 1.4 )
+script = ExtResource( 2 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WallDestroyer"]
+scale = Vector2( 1, 2.62857 )
+shape = SubResource( 2 )
+
+[node name="sound" type="AudioStreamPlayer2D" parent="WallDestroyer"]
+stream = ExtResource( 10 )
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2( 640, 360 )
+current = true
+
+[node name="roofs" type="Node2D" parent="."]
+
+[node name="down" type="Area2D" parent="roofs"]
+position = Vector2( 640, 802 )
+script = ExtResource( 4 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="roofs/down"]
+scale = Vector2( 16, 1 )
+shape = SubResource( 3 )
+
+[node name="top" type="Area2D" parent="roofs"]
+position = Vector2( 640, -81 )
+scale = Vector2( 1.29563, 0.967889 )
+script = ExtResource( 4 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="roofs/top"]
+scale = Vector2( 16, 1 )
+shape = SubResource( 3 )
+
+[node name="up" type="TouchScreenButton" parent="."]
+scale = Vector2( 80, 22.4375 )
+normal = ExtResource( 13 )
+
+[node name="down" type="TouchScreenButton" parent="."]
+position = Vector2( 0, 361 )
+scale = Vector2( 80, 22.4375 )
+normal = ExtResource( 13 )
+
+[connection signal="levelup" from="." to="WallSpawner" method="_on_Game_levelup"]
+[connection signal="pisgone" from="." to="RigidBody2D" method="_on_Game_pisgone"]
+[connection signal="scored" from="." to="ScoreLabel" method="_on_Game_scored"]
+[connection signal="bar_disappered" from="WallDestroyer" to="." method="_on_WallDestroyer_bar_disappered"]
+[connection signal="body_entered" from="WallDestroyer" to="WallDestroyer" method="_on_Area2D_body_entered"]
+[connection signal="player_death" from="WallDestroyer" to="." method="_on_WallDestroyer_player_death"]
+[connection signal="body_entered" from="roofs/down" to="roofs/down" method="_on_down_body_entered"]
+[connection signal="player_death" from="roofs/down" to="." method="_on_down_player_death"]
+[connection signal="body_entered" from="roofs/top" to="roofs/top" method="_on_top_body_entered"]
+[connection signal="player_death" from="roofs/top" to="." method="_on_top_player_death"]
+[connection signal="pressed" from="up" to="RigidBody2D" method="_on_up_pressed"]
+[connection signal="pressed" from="down" to="RigidBody2D" method="_on_down_pressed"]
