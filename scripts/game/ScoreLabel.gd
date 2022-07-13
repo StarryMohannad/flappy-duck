@@ -1,6 +1,5 @@
 extends Label
 
-onready var game = get_node("Game")
 var labelscore = 0
 
 func _process(delta):

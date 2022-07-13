@@ -19,7 +19,6 @@ func _process(delta):
 
 func pdied():
 	emit_signal("pisgone")
-	Input.vibrate_handheld(100)
 	get_tree().reload_current_scene()
 
 func _on_WallDestroyer_player_death():

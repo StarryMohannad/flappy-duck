@@ -13,7 +13,6 @@ func _process(_delta):
 	if canrandomhight == true and canspawn == true:
 		var wallhight = rng.randi_range(0, 1)
 		
-		print(wallhight)
 		if wallhight == 0:
 			var wallinst = high0.instance()
 			wallinst.position = global_position
