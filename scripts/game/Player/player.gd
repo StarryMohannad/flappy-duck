@@ -11,14 +11,16 @@ func _physics_process(_delta: float) -> void:
 	if Input.is_action_pressed("flap") and canflap == true:
 		$flap.play()
 		apply_impulse(Vector2(), Vector2(0, -250))
-		
+		Input.start_joy_vibration(0,0.2,0.2,0.1)
+
 		canflap = false
 		yield(get_tree().create_timer(flaprate), "timeout")
 		canflap = true
 	elif Input.is_action_pressed("dive") and canflap == true:
 		$dive.play()
 		apply_impulse(Vector2(), Vector2(0, 250))
-		
+		Input.start_joy_vibration(0,0.2,0.2,0.1)
+
 		canflap = false
 		yield(get_tree().create_timer(flaprate), "timeout")
 		canflap = true
